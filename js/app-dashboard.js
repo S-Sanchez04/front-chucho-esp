@@ -35,14 +35,47 @@ async function updateHealthOnce() {
 function setStreamSrc() {
   const img = document.getElementById("camFeed");
   // construye URL del stream; el usuario puede ajustar STREAM_PATH en config.js
-  let path = window.APP_CONFIG.STREAM_PATH || "/stream";
-  // si stream usa puerto 81 (común) permite especificarlo en ip: ej 192.168.1.42:81
-  img.src = `http://${ip}${path}`;
-  img.onerror = () => {
-    // si falla, mostramos placeholder
-    img.src = "";
-    img.alt = "No hay stream disponible (aún)";
-  };
+  const configured = window.APP_CONFIG.STREAM_PATH;
+  const candidates = [];
+  if (configured) {
+    // si el usuario puso una URL completa, úsala tal cual
+    if (/^https?:\/\//i.test(configured)) {
+      candidates.push(configured);
+    } else {
+      candidates.push(`http://${ip}${configured}`);
+    }
+  } else {
+    // endpoints comunes para apps de IP webcam / mjpeg
+    candidates.push(`http://${ip}/video`);
+    candidates.push(`http://${ip}/stream`);
+    candidates.push(`http://${ip}/shot.jpg`);
+    // algunos servidores usan el puerto 8080 por defecto
+    candidates.push(`http://${ip}:8080/video`);
+    candidates.push(`http://${ip}:8080/`);
+  }
+
+  let tried = 0;
+  img.alt = "Cargando feed...";
+
+  function tryNext() {
+    if (tried >= candidates.length) {
+      img.src = "";
+      img.alt = "No hay stream disponible (aún)";
+      return;
+    }
+    const url = candidates[tried++];
+    img.onload = () => {
+      img.onerror = null;
+      img.alt = "Feed cámara";
+    };
+    img.onerror = () => {
+      // intenta siguiente candidato
+      setTimeout(tryNext, 200);
+    };
+    img.src = url;
+  }
+
+  tryNext();
 }
 
 async function sendCommand(direction, speed, duration) {
