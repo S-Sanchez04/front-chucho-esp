@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Conectar - Carro ESP32</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 min-h-screen flex items-center justify-center">
+  <main class="w-full max-w-lg p-6">
+    <div class="bg-white shadow-md rounded-lg p-6">
+      <h1 class="text-2xl font-semibold mb-2">Conectar a Carro ESP32-CAM</h1>
+      <p class="text-sm text-slate-500 mb-4">Introduce la IP del ESP32 en la misma red (ej: 192.168.1.42). Usa el puerto si aplica (ej: 192.168.1.42:80).</p>
+
+      <label class="block mb-2 text-sm font-medium">IP del carro</label>
+      <input id="ipInput" class="w-full px-3 py-2 border rounded mb-3" placeholder="192.168.x.x[:puerto]" />
+
+      <div class="flex gap-2">
+        <button id="btnTest" class="flex-1 bg-indigo-600 text-white py-2 rounded hover:bg-indigo-700">Probar conexión</button>
+        <button id="btnOpen" class="flex-1 bg-slate-200 text-slate-800 py-2 rounded">Abrir dashboard</button>
+      </div>
+
+      <div id="result" class="mt-4 text-sm text-slate-600"></div>
+
+      <hr class="my-4" />
+      <p class="text-xs text-slate-400">Consejo: si tu navegador abre el archivo con file://, ejecuta <code class="bg-slate-100 px-1 rounded">python -m http.server 8000</code> y abre <code class="bg-slate-100 px-1 rounded">http://localhost:8000</code></p>
+    </div>
+  </main>
+
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/app-index.js"></script>
+</body>
+</html>
