@@ -34,18 +34,19 @@ async function getHealth(ip) {
 async function sendMove(ip, direction, speed = 180, duration = 500) {
   ip = normalizeIp(ip);
   if (!ip) throw new Error("IP no definida");
-  const url = `http://${ip}${window.APP_CONFIG.MOVE_PATH}`;
-  const body = { direction: direction, speed: Number(speed), duration_ms: Number(duration) };
-  const res = await timeoutFetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-    timeout: 4000
+  // El servidor del ESP espera los parámetros por query string (ej: ?direction=forward&speed=200&duration=1000)
+  const params = new URLSearchParams({
+    direction: String(direction),
+    speed: String(Number(speed)),
+    duration: String(Number(duration))
   });
+  const url = `http://${ip}${window.APP_CONFIG.MOVE_PATH}?${params.toString()}`;
+  const res = await timeoutFetch(url, { timeout: 4000 });
   if (!res.ok) {
-    // intenta leer texto de error
-    let text = await res.text().catch(()=>"");
+    let text = await res.text().catch(() => "");
     throw new Error("move failed: " + res.status + " " + text);
   }
-  try { return await res.json(); } catch(e){ return {}; }
+  // intenta parsear JSON si viene; si no, devuelve texto
+  const text = await res.text().catch(() => "");
+  try { return text ? JSON.parse(text) : {}; } catch (e) { return text; }
 }

@@ -49,7 +49,16 @@ async function sendCommand(direction, speed, duration) {
   try {
     log(`Enviar: ${direction} speed=${speed} dur=${duration}`);
     const res = await sendMove(ip, direction, speed, duration);
-    log("OK: " + JSON.stringify(res || {}));
+    // Mostrar en logs la respuesta tal como venga del servidor:
+    if (typeof res === 'string') {
+      log("[Server]: " + res);
+    } else {
+      try {
+        log("[Server]: " + JSON.stringify(res));
+      } catch (e) {
+        log("[Server]: (response) - no se pudo serializar");
+      }
+    }
   } catch (err) {
     log("Error enviando comando: " + (err.message || err));
     console.error(err);
